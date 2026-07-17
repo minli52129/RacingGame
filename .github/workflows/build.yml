@@ -1,0 +1,44 @@
+name: Build Android APKs
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew (ControllerApp)
+      run: chmod +x ControllerApp/gradlew
+
+    - name: Build ControllerApp APK
+      run: cd ControllerApp && ./gradlew assembleDebug
+
+    - name: Grant execute permission for gradlew (TVApp)
+      run: chmod +x TVApp/gradlew
+
+    - name: Build TVApp APK
+      run: cd TVApp && ./gradlew assembleDebug
+
+    - name: Upload ControllerApp APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: RacingController-APK
+        path: ControllerApp/app/build/outputs/apk/debug/app-debug.apk
+
+    - name: Upload TVApp APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: RacingTV-APK
+        path: TVApp/app/build/outputs/apk/debug/app-debug.apk
